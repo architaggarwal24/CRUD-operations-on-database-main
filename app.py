@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from db_helper import DBHelper
 
 app = Flask(__name__)
+app.secret_key = "super-secret-key-change-this"
 db = DBHelper()
 
 @app.route('/')
@@ -12,12 +13,20 @@ def home():
 @app.route('/insert', methods=['GET', 'POST'])
 def insert():
     if request.method == 'POST':
-        userId = request.form['userId']
-        userName = request.form['userName']
-        phone = request.form['phone']
-        db.insert_user(userId, userName, phone)
-        return redirect(url_for('home'))
+        userName = request.form.get('userName')
+        phone = request.form.get('phone')
+
+        try:
+            db.insert_user(userName, phone)
+            session['toast'] = ('success', 'User added successfully!')
+        except Exception:
+            session['toast'] = ('error', 'Database error occurred!')
+
+        return redirect('/')
+
     return render_template('insert.html')
+
+
 
 @app.route('/update/<int:userId>', methods=['GET', 'POST'])
 def update(userId):

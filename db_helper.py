@@ -10,25 +10,27 @@ logging.basicConfig(
 
 class DBHelper:
     def __init__(self):
-        self.con = connector.connect(host="localhost",user ="your_username",password="your_pass",database="pythontest")
-        query = 'create table if not exists user(userId int primary key,userName varchar(200), phone varchar(12))'
+        self.con = connector.connect(host="localhost",user ="root",password="archit",database="dynamic_sql")
+        query = 'create table if not exists user(userId int primary key AUTO_INCREMENT,userName varchar(200), phone varchar(12))'
         cur = self.con.cursor()
         cur.execute(query)
         logging.info("User table creation checked/created successfully.")
     
     
     
-    def insert_user(self,userid, username,phone):
+    def insert_user(self, username, phone):
         try:
-            query="insert into user (userId,userName,phone) values({},'{}','{}')".format(userid,username,phone)
+            query = "INSERT INTO user (userName, phone) VALUES ('{}', '{}')".format(
+                username, phone
+            )
             cur = self.con.cursor()
             cur.execute(query)
             self.con.commit()
             logging.info("User inserted successfully")
 
         except connector.Error as err:
-            print(f"Database Error: {err}")
-    
+            logging.error(f"Database Error: {err}")
+            raise err
     
     
     def fetch_all(self):
